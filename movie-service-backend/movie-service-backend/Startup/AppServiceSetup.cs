@@ -26,9 +26,11 @@ namespace movie_service_backend.Startup
 
             // Repository
             services.AddScoped<IRepo<User>, UserRepo>();
+            services.AddScoped<IRepo<Film>, FilmRepo>();
 
             // Service
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IFilmService, FilmService>();
             services.AddScoped<PasswordService>();
             var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]);
             services.AddAuthentication(options =>

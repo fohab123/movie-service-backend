@@ -5,12 +5,20 @@ namespace movie_service_backend.Models
 {
     public class User
     {
-        [Key] // označava primarni ključ
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // auto-increment
+        [Key] 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
         public int Id { get; set; }
 
-        [Required] // obavezno polje
-        [MaxLength(50)] // opciono ograničenje dužine
+        [Required] 
+        [MaxLength(50)] 
+        public string FirstName { get; set; }
+
+        [Required] 
+        [MaxLength(50)] 
+        public string LastName { get; set; }
+
+        [Required] 
+        [MaxLength(50)] 
         public string Username { get; set; }
 
         [Required]

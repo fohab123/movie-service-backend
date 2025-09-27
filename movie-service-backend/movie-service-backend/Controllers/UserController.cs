@@ -15,6 +15,7 @@ namespace movie_service_backend.Controllers
         public UserController(IUserService service) {
             _userService = service;
         }
+
         [HttpPost("CreateUser")]
         public async Task<ActionResult> Create([FromBody] UserCreateDTO dto)
         {
@@ -31,7 +32,7 @@ namespace movie_service_backend.Controllers
             return Ok(await _userService.GetAllUsersAsync());
         }
         [Authorize]
-        [HttpGet("GetByID{id}")]
+        [HttpGet("GetByID/{id}")]
         public async Task<IActionResult> GetByID(int id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -39,14 +40,14 @@ namespace movie_service_backend.Controllers
             return Ok(user);
         }
         [Authorize]
-        [HttpPut("UpdateUser{id}")]
+        [HttpPut("UpdateUser/{id}")]
         public async Task<IActionResult> Update(int id, UserCreateDTO dto)
         {
             await _userService.UpdateUserAsync(id, dto);
             return Ok("User successfully updated.");
         }
         [Authorize]
-        [HttpDelete("DeleteUser{id}")]
+        [HttpDelete("DeleteUser/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _userService.DeleteUserAsync(id);

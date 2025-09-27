@@ -23,9 +23,9 @@ public class JwtService
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("UserId", user.Id.ToString()),
-                new Claim("IsAdmin", user.IsAdmin ? "1" : "0")
+                new Claim("username", user.Username),
+                new Claim("userId", user.Id.ToString()),
+                new Claim("isAdmin", user.IsAdmin ? "1" : "0")
             }),
             Expires = DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:ExpiresInMinutes"])),
             Issuer = _config["Jwt:Issuer"],
