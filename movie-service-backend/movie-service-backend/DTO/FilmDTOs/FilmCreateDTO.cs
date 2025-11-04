@@ -14,8 +14,8 @@ namespace movie_service_backend.DTO.FilmDTOs
         [Range(1888, 2100)]
         public int Year { get; set; }
 
-        [MaxLength(100)]
-        public string Genre { get; set; }
+        [Required]
+        public int GenreId { get; set; }
 
         [MaxLength(100)]
         public string Director { get; set; }

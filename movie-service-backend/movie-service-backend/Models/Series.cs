@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using movie_service_backend.Models;
+using System.ComponentModel.DataAnnotations;
 
 public class Series
 {
@@ -13,17 +14,16 @@ public class Series
 
     public int Year { get; set; }
 
-    [MaxLength(100)]
-    public string Genre { get; set; }
+    public int GenreId { get; set; }
+    public Genre Genre { get; set; }
 
     [MaxLength(100)]
     public string Director { get; set; }
 
     public int Seasons { get; set; }
 
-    public int Episodes { get; set; }
-
     public string PosterUrl { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigacione property
     public ICollection<Rating> Ratings { get; set; }

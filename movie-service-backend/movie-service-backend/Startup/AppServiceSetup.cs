@@ -25,13 +25,21 @@ namespace movie_service_backend.Startup
             services.AddAutoMapper(typeof(UserProfile).Assembly);
 
             // Repository
-            services.AddScoped<IRepo<User>, UserRepo>();
-            services.AddScoped<IRepo<Film>, FilmRepo>();
+            services.AddScoped<UserRepo>();
+            services.AddScoped<FilmRepo>();
+            services.AddScoped<SeriesRepo>();
+            services.AddScoped<RatingRepo>();
+            services.AddScoped<CommentRepo>();
 
             // Service
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFilmService, FilmService>();
+            services.AddScoped<ISeriesService, SeriesService>();
+            services.AddScoped<IRatingService, RatingService>();
+            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<EmailService>();
             services.AddScoped<PasswordService>();
+
             var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]);
             services.AddAuthentication(options =>
             {

@@ -4,10 +4,12 @@ namespace movie_service_backend.Interfaces
 {
     public interface IFilmService
     {
-        Task<IEnumerable<FilmDTO>> GetAllAsync();
-        Task<FilmDTO?> GetByIdAsync(int id);
-        Task<FilmDTO> CreateAsync(FilmCreateDTO dto);
-        Task<FilmDTO?> UpdateAsync(int id, FilmCreateDTO dto);
-        Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<FilmDTO>> GetAllFilmsAsync();
+        Task<FilmDTO?> GetFilmByIdAsync(int id);
+        Task<FilmDTO> CreateFilmAsync(FilmCreateDTO dto);
+        Task<FilmDTO?> UpdateFilmAsync(int id, FilmCreateDTO dto);
+        Task<bool> DeleteFilmAsync(int id);
+        Task<IEnumerable<object>> GetFilmsGroupedByGenreAsync();
+        Task<IEnumerable<object>> GetAllSortedByDateAsync();
     }
 }

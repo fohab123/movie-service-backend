@@ -16,12 +16,24 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDTO dto)
     {
-        var token = await _userService.LoginAsync(dto);
-        if (token == null)
+        try
         {
-            return Unauthorized("Invalid username or password");
-        }
+            var token = await _userService.LoginAsync(dto);
 
-        return Ok(new { Token = token });
+            if (token == null)
+                return Unauthorized("Invalid username or password.");
+
+            return Ok(new { Token = token });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            // vrati lepo sročenu poruku korisniku
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception)
+        {
+            // fallback za sve ostale greške
+            return StatusCode(500, "An unexpected error occurred.");
+        }
     }
 }

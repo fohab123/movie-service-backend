@@ -1,5 +1,6 @@
 ﻿using movie_service_backend.Data;
 using movie_service_backend.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using movie_service_backend.Models;
 
 namespace movie_service_backend.Repo
@@ -19,17 +20,21 @@ namespace movie_service_backend.Repo
 
         public void Delete(Film entity)
         {
-            throw new NotImplementedException();
+            _context.Films.Remove(entity);
         }
 
-        public Task<IEnumerable<Film>> GetAllAsync()
+        public async Task<IEnumerable<Film>> GetAllAsync()
         {
-            throw new NotImplementedException();
+             return await _context.Films
+             .Include(f => f.Genre)   // <-- uključuje i žanr
+             .ToListAsync();
         }
 
-        public Task<Film?> GetByIdAsync(int id)
+        public async Task<Film?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Films
+           .Include(f => f.Genre)   // <-- da imaš i žanr u GetById
+           .FirstOrDefaultAsync(f => f.Id == id);
         }
 
         public async Task<bool> SaveChangesAsync()
@@ -39,7 +44,14 @@ namespace movie_service_backend.Repo
 
         public void Update(Film entity)
         {
-            throw new NotImplementedException();
+            _context.Films.Update(entity);
+        }
+        public async Task<IEnumerable<Film>> GetAllSortedByDateAsync()
+        {
+            return await _context.Films
+                .Include(f => f.Genre)
+                .OrderByDescending(f => f.CreatedAt)
+                .ToListAsync();
         }
     }
 }

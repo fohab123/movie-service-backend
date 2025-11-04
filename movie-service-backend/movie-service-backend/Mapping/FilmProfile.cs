@@ -8,8 +8,11 @@ namespace movie_service_backend.Mapping
     {
         public FilmProfile()
         {
-            CreateMap<Film, FilmDTO>().ReverseMap();
-            CreateMap<FilmCreateDTO, Film>();
+            CreateMap<Film, FilmDTO>();
+            CreateMap<Genre, GenreDTO>();
+            CreateMap<FilmCreateDTO, Film>()
+    .ForMember(dest => dest.Genre, opt => opt.Ignore());
+
         }
     }
 }

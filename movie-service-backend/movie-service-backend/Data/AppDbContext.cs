@@ -12,5 +12,7 @@ namespace movie_service_backend.Data
         public DbSet<Series> Series { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Genre> Genres { get; set; }
+
     }
 }

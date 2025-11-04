@@ -10,5 +10,7 @@ namespace movie_service_backend.Interfaces
         Task<UserAdminDTO> UpdateUserAsync(int id, UserCreateDTO dto);
         Task<bool> DeleteUserAsync(int id);
         Task<string?> LoginAsync(LoginDTO dto);
+        Task<bool> VerifyEmailAsync(string token);
+
     }
 }

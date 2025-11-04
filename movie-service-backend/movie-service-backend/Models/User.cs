@@ -27,10 +27,15 @@ namespace movie_service_backend.Models
 
         [Required]
         [MaxLength(100)]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Required]
         public bool IsAdmin { get; set; } = false;
+        public bool IsEmailVerified { get; set; } = false;
+
+        [MaxLength(200)]
+        public string? EmailVerificationToken { get; set; }
     }
 }
  

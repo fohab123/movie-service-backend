@@ -1,0 +1,56 @@
+﻿using movie_service_backend.Data;
+using movie_service_backend.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using movie_service_backend.Models;
+
+namespace movie_service_backend.Repo
+{
+    public class RatingRepo : IRepo<Rating>
+    {
+        private readonly AppDbContext _context;
+
+        public RatingRepo(AppDbContext context)
+        {
+            _context = context;
+        }
+
+
+        public async Task AddAsync(Rating entity)
+        {
+            await _context.Ratings.AddAsync(entity);
+        }
+
+        public void Delete(Rating entity)
+        {
+            _context.Ratings.Remove(entity);
+        }
+
+        public async Task<IEnumerable<Rating>> GetAllAsync()
+        {
+            return await _context.Ratings.
+                Include(r => r.User).
+                Include(r => r.Film).
+                Include(r => r.Series).
+                ToListAsync();
+        }
+
+        public async Task<Rating?> GetByIdAsync(int id)
+        {
+            return await _context.Ratings.
+                Include(r => r.User).
+                Include(r => r.Film).
+                Include(r => r.Series).
+                FirstOrDefaultAsync(r => r.Id == id);
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public void Update(Rating entity)
+        {
+            _context.Ratings.Update(entity);
+        }
+    }
+}

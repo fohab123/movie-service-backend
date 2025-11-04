@@ -25,13 +25,29 @@ namespace movie_service_backend.Controllers
             await _userService.CreateUserAsync(dto);
             return Ok("User successfully created.");
         }
-        [Authorize]
+
+        [HttpGet("verify-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return BadRequest("Invalid verification token.");
+
+            var result = await _userService.VerifyEmailAsync(token);
+
+            if (!result)
+                return BadRequest("Invalid or expired token.");
+
+            return Ok("Email verified successfully!");
+        }
+
+        //[Authorize(Roles = "Admin")]
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _userService.GetAllUsersAsync());
         }
-        [Authorize]
+        //[Authorize]
         [HttpGet("GetByID/{id}")]
         public async Task<IActionResult> GetByID(int id)
         {
@@ -39,14 +55,14 @@ namespace movie_service_backend.Controllers
             if (user == null) return NotFound();
             return Ok(user);
         }
-        [Authorize]
+       // [Authorize]
         [HttpPut("UpdateUser/{id}")]
         public async Task<IActionResult> Update(int id, UserCreateDTO dto)
         {
             await _userService.UpdateUserAsync(id, dto);
             return Ok("User successfully updated.");
         }
-        [Authorize]
+        //[Authorize]
         [HttpDelete("DeleteUser/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
