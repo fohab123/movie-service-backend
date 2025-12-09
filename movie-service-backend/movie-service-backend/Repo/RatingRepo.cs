@@ -1,6 +1,7 @@
-﻿using movie_service_backend.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using movie_service_backend.Data;
+using movie_service_backend.DTO.FilmDTOs;
 using movie_service_backend.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using movie_service_backend.Models;
 
 namespace movie_service_backend.Repo
@@ -52,5 +53,8 @@ namespace movie_service_backend.Repo
         {
             _context.Ratings.Update(entity);
         }
+
+        
+
     }
 }

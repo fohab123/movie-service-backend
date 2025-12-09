@@ -43,5 +43,25 @@ namespace movie_service_backend.Repo
         {
             return await _context.SaveChangesAsync() > 0;
         }
+        public async Task<int> GetRatingsCountAsync(int userId)
+        {
+            return await _context.Ratings.Where(r=>r.UserId == userId).CountAsync();
+        }
+        public async Task<double> GetAverageRatingAsync(int userId)
+        {
+            var ratings = await _context.Ratings.Where(r=>r.UserId == userId).Select(r=>r.Value).ToListAsync();
+            return ratings.Count == 0 ? 0 : ratings.Average();
+        }
+        public async Task<int> GetCommentsCountAsync(int userId)
+        {
+            return await _context.Comments.Where(c=>c.UserId == userId).CountAsync();   
+        }
+        public async Task<int> GetReviewsCountAsync(int userId)
+        {
+            return await
+                (from rating in _context.Ratings join comment in _context.Comments on new { rating.FilmId, rating.SeriesId, rating.UserId } equals new
+                { comment.FilmId, comment.SeriesId, comment.UserId } where rating.UserId == userId select rating).CountAsync();
+                
+        }
     }
 }

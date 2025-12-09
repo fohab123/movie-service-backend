@@ -52,5 +52,11 @@ namespace movie_service_backend.Repo
                 .OrderByDescending(f => f.CreatedAt)
                 .ToListAsync();
         }
+        public async Task<List<Genre>> GetGenresByIdsAsync(List<int> ids)
+        {
+            return await _context.Genres
+                .Where(g => ids.Contains(g.Id))
+                .ToListAsync();
+        }
     }
 }

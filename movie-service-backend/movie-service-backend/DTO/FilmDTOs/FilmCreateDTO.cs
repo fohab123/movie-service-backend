@@ -15,7 +15,7 @@ namespace movie_service_backend.DTO.FilmDTOs
         public int Year { get; set; }
 
         [Required]
-        public int GenreId { get; set; }
+        public List<int> GenreId { get; set; }
 
         [MaxLength(100)]
         public string Director { get; set; }

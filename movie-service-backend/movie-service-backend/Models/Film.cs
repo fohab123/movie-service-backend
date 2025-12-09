@@ -14,8 +14,7 @@ public class Film
 
     public int Year { get; set; }
 
-    public int GenreId { get; set; }
-    public Genre Genre { get; set; }
+    public ICollection<Genre> Genre { get; set; } = new List<Genre>();
 
     [MaxLength(100)]
     public string Director { get; set; }

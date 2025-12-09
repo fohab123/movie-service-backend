@@ -8,6 +8,6 @@
         public int Year {  get; set; }
         public string Director { get; set; }
         public string PosterUrl { get; set; }
-        public int GenreId { get; set; }
+        public List<int> GenreId { get; set; }
     }
 }

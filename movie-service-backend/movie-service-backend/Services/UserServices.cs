@@ -89,15 +89,12 @@ namespace movie_service_backend.Services
             if (user == null)
                 return null;
 
-            // 🚫 Ako email nije verifikovan — zabrani login
             if (!user.IsEmailVerified)
                 throw new UnauthorizedAccessException("Email not verified. Please verify your email before logging in.");
 
-            // 🔑 Provera lozinke
             if (!_passwordService.VerifyPassword(user.Password, dto.Password))
                 return null;
 
-            // ✅ Ako je sve ok — generiši JWT token
             return _jwtService.GenerateToken(user);
         }
 
@@ -115,8 +112,22 @@ namespace movie_service_backend.Services
             await _repo.SaveChangesAsync();
 
             return _mapper.Map<UserAdminDTO>(user);
-        } 
-        
+        }
+        public async Task<UserStatsDTO> GetUserStatsAsync(int userId)
+        {
+            var rated = await _repo.GetRatingsCountAsync(userId);
+            var avgRating = await _repo.GetAverageRatingAsync(userId);
+            var comments = await _repo.GetCommentsCountAsync(userId);
+            var reviews = await _repo.GetReviewsCountAsync(userId);
+
+            return new UserStatsDTO
+            {
+                Rated = rated,
+                AvgRating = Math.Round(avgRating, 2),
+                Comments = comments,
+                Reviews = reviews
+            };
+        }
 
     }
 }

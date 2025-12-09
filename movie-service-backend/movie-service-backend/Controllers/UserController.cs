@@ -69,6 +69,12 @@ namespace movie_service_backend.Controllers
             await _userService.DeleteUserAsync(id);
             return Ok("User successfully deleted.");
         }
+        [HttpGet("UserStats/{userId}")]
+        public async Task<IActionResult> GetUserStats(int userId)
+        {
+            var stats = await _userService.GetUserStatsAsync(userId);
+            return Ok(stats);
+        }
     }   
 
 }

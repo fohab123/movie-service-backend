@@ -52,8 +52,8 @@ namespace movie_service_backend.Controllers
         [HttpGet("OrderedByTimeAdded")]
         public async Task<IActionResult> GetAllOrderByTimeAdded()
         {
-            var film = await _seriesService.GetAllSortedByDateAsync();
-            return Ok(film);
+            var series = await _seriesService.GetAllSortedByDateAsync();
+            return Ok(series);
         }
     }
 }

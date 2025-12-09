@@ -20,7 +20,11 @@ namespace movie_service_backend.Services
         public async Task<SeriesDTO> CreateSeriesAsync(SeriesCreateDTO dto)
         {
             var series = _mapper.Map<Series>(dto);
-            series.GenreId = dto.GenreId;
+            if (dto.GenreId != null && dto.GenreId.Any())
+            {
+                var genres = await _repo.GetGenresByIdsAsync(dto.GenreId);
+                series.Genre = genres;
+            }
             await _repo.AddAsync(series);
             await _repo.SaveChangesAsync();
             return _mapper.Map<SeriesDTO>(series);
@@ -54,7 +58,11 @@ namespace movie_service_backend.Services
             series.Title = dto.Title;
             series.Description = dto.Description;
             series.Year = dto.Year;
-            series.GenreId = dto.GenreId;
+            if (dto.GenreId != null && dto.GenreId.Any())
+            {
+                var genres = await _repo.GetGenresByIdsAsync(dto.GenreId);
+                series.Genre = genres;
+            }
             series.Director = dto.Director;
             series.Seasons = dto.Seasons;
             series.PosterUrl = dto.PosterUrl;

@@ -1,6 +1,7 @@
-﻿using movie_service_backend.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using movie_service_backend.Data;
+using movie_service_backend.DTO.FilmDTOs;
 using movie_service_backend.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using movie_service_backend.Models;
 
 namespace movie_service_backend.Repo
@@ -50,7 +51,30 @@ namespace movie_service_backend.Repo
         {
             return await _context.Films
                 .Include(f => f.Genre)
-                .OrderByDescending(f => f.CreatedAt)
+                .OrderByDescending(f => f.CreatedAt).Take(3)
+                .ToListAsync();
+        }
+        public async Task<List<Genre>> GetGenresByIdsAsync(List<int> ids)
+        {
+            return await _context.Genres
+                .Where(g => ids.Contains(g.Id))
+                .ToListAsync();
+        }
+
+        public async Task<List<Rating>> GetUserRatingsWithGenresAsync(int userId)
+        {
+            return await _context.Ratings
+                .Where(r => r.UserId == userId && r.FilmId != null)
+                .Include(r => r.Film)
+                    .ThenInclude(f => f.Genre)
+                .ToListAsync();
+        }
+
+        public async Task<List<Film>> GetAllFilmsWithRatingsAsync()
+        {
+            return await _context.Films
+                .Include(f => f.Genre)
+                .Include(f => f.Ratings)
                 .ToListAsync();
         }
     }

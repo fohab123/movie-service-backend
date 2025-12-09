@@ -9,7 +9,8 @@ namespace movie_service_backend.Interfaces
         Task<FilmDTO> CreateFilmAsync(FilmCreateDTO dto);
         Task<FilmDTO?> UpdateFilmAsync(int id, FilmCreateDTO dto);
         Task<bool> DeleteFilmAsync(int id);
-        Task<IEnumerable<object>> GetFilmsGroupedByGenreAsync();
+        Task<IEnumerable<FilmGenreGroupDTO>> GetFilmsGroupedByGenreAsync();
         Task<IEnumerable<object>> GetAllSortedByDateAsync();
+        Task<RecommendedFilmDTO?> GetRecommendationAsync(int userId);
     }
 }

@@ -14,7 +14,7 @@ namespace movie_service_backend.DTO.FilmDTOs
         public DateTime CreatedAt { get; set; }
 
         // Navigacioni DTO
-        public GenreDTO Genre { get; set; }
+        public ICollection<GenreDTO> Genres { get; set; }
     }
 
 }

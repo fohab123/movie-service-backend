@@ -12,7 +12,7 @@ namespace movie_service_backend.Models
         public string Name { get; set; }
 
         // Navigaciona property za filmove koji imaju ovaj žanr
-        public ICollection<Film> Films { get; set; }
-        public ICollection<Series> Series { get; set; }
+        public ICollection<Film> Films { get; set; } = new List<Film>();
+        public ICollection<Series> Series { get; set; } = new List<Series>();
     }
 }
