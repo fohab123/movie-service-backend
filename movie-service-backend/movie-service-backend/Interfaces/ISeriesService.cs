@@ -1,4 +1,5 @@
-﻿using movie_service_backend.DTO.SeriesDTOs;
+﻿using movie_service_backend.DTO.FilmDTOs;
+using movie_service_backend.DTO.SeriesDTOs;
 
 namespace movie_service_backend.Interfaces
 {
@@ -11,5 +12,7 @@ namespace movie_service_backend.Interfaces
         Task<bool> DeleteSeriesAsync(int id);
         Task<IEnumerable<object>> GetSeriesGroupedByGenreAsync();
         Task<IEnumerable<object>> GetAllSortedByDateAsync();
+        Task<RecommendedSeriesDTO?> GetRecommendationAsync(int userId);
+        Task<IEnumerable<SeriesDTO>> GetTrendingSeriesAsync();
     }
 }

@@ -77,5 +77,13 @@ namespace movie_service_backend.Repo
                 .Include(f => f.Ratings)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Film>> GetAllWithRatingsCommentsAsync()
+        {
+            return await _context.Films
+                .Include(f=>f.Genre)
+                .Include(f=>f.Ratings)
+                .Include(f=>f.Comments)
+                .ToListAsync();
+        }
     }
 }

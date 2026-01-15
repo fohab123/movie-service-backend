@@ -19,17 +19,39 @@ namespace movie_service_backend.Services
 
         public async Task<CommentDTO> CreateForFilmAsync(CommentCreateFilmDTO dto)
         {
+            var lastComment = await _repo.GetLastUserCommentAsync(dto.UserId, dto.FilmId, null);
+            if(lastComment!=null)
+            {
+                var diff = DateTime.UtcNow - lastComment.CreatedAt;
+                if (diff.TotalMinutes < 2)
+                    return null;
+            }
             var comment = _mapper.Map<Comment>(dto);
+            comment.SeriesId = null;
+            comment.CreatedAt= DateTime.UtcNow;
+
             await _repo.AddAsync(comment);
             await _repo.SaveChangesAsync();
+
             return _mapper.Map<CommentDTO>(comment);
         }
 
         public async Task<CommentDTO> CreateForSeriesAsync(CommentCreateSeriesDTO dto)
         {
+            var lastComment = await _repo.GetLastUserCommentAsync(dto.UserId, null, dto.SeriesId);
+            if (lastComment != null)
+            {
+                var diff = DateTime.UtcNow - lastComment.CreatedAt;
+                if (diff.TotalMinutes < 2)
+                    return null;
+            }
             var comment = _mapper.Map<Comment>(dto);
+            comment.FilmId = null;
+            comment.CreatedAt = DateTime.UtcNow;
+
             await _repo.AddAsync(comment);
             await _repo.SaveChangesAsync();
+            
             return _mapper.Map<CommentDTO>(comment);
         }
 

@@ -30,6 +30,8 @@ namespace movie_service_backend.Startup
             services.AddScoped<SeriesRepo>();
             services.AddScoped<RatingRepo>();
             services.AddScoped<CommentRepo>();
+            services.AddScoped<DebateRepo>();
+            services.AddScoped<DebatePostLikeRepo>();
 
             // Service
             services.AddScoped<IUserService, UserService>();
@@ -37,30 +39,29 @@ namespace movie_service_backend.Startup
             services.AddScoped<ISeriesService, SeriesService>();
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IDebateService, DebateService>();
             services.AddScoped<EmailService>();
             services.AddScoped<PasswordService>();
 
-            var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]);
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                };
-            });
+            
 
-            services.AddAuthorization();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = configuration["Jwt:Issuer"],
+                        ValidAudience = configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(configuration["Jwt:Key"])
+                        )
+                    };
+                });
 
             services.AddSwaggerGen(c =>
             {

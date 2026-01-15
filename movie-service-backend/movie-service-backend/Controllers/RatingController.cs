@@ -20,7 +20,9 @@ namespace movie_service_backend.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            await _ratingService.CreateForFilmAsync(dto);
+            var result = await _ratingService.CreateForFilmAsync(dto);
+            if (result == null)
+                return BadRequest("You have already rated this film");
             return Ok("Rating added successfully.");
         }
         [HttpPost("CreateRatingForSeries")]
@@ -28,7 +30,9 @@ namespace movie_service_backend.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            await _ratingService.CreateForSeriesAsync(dto);
+            var result = await _ratingService.CreateForSeriesAsync(dto);
+            if (result == null)
+                return BadRequest("You have already rated this series");
             return Ok("Rating added successfully.");
         }
         [HttpGet("GetAll")]

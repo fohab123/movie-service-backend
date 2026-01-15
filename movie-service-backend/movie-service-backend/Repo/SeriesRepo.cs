@@ -58,5 +58,28 @@ namespace movie_service_backend.Repo
                 .Where(g => ids.Contains(g.Id))
                 .ToListAsync();
         }
+        public async Task<List<Rating>> GetUserRatingsWithGenresAsync(int userId)
+        {
+            return await _context.Ratings
+                .Where(r=>r.UserId== userId && r.FilmId != null)
+                .Include(r=>r.Film)
+                .ThenInclude(f=>f.Genre)
+                .ToListAsync();
+        }
+        public async Task<List<Series>> GetAllSeriesWithRatingsAsync()
+        {
+            return await _context.Series
+                .Include(f => f.Genre)
+                .Include(f => f.Ratings)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Series>> GetAllWithRatingsCommentsAsync()
+        {
+            return await _context.Series
+                .Include(s => s.Comments)
+                .Include(s => s.Ratings)
+                .Include(s => s.Genre)
+                .ToListAsync();
+        }
     }
 }

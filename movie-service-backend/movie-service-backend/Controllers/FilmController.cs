@@ -70,5 +70,12 @@ namespace movie_service_backend.Controllers
             var recommendations = await _filmService.GetRecommendationAsync(userId);
             return Ok(recommendations);
         }
+        [HttpGet("trending")]
+        public async Task<IActionResult> GetTrendingFilms()
+        {
+            var result = await _filmService.GetTrendingFilmsAsync();
+            return Ok(result);
+        }
+
     }
 }

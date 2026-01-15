@@ -22,15 +22,19 @@ namespace movie_service_backend.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            await _commentService.CreateForFilmAsync(dto);
+            var result = await _commentService.CreateForFilmAsync(dto);
+            if (result == null)
+                return BadRequest("You can only post comment every 2 minutes");
             return Ok("Comment added successfully.");
         }
         [HttpPost("CreateCommentForSeries")]
         public async Task<IActionResult> CreateForSeries([FromBody] CommentCreateSeriesDTO dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            await _commentService.CreateForSeriesAsync(dto);
+                return BadRequest(ModelState); 
+            var result = await _commentService.CreateForSeriesAsync(dto);
+            if (result == null)
+                return BadRequest("You can only post comment every 2 minutes");
             return Ok("Comment added successfully.");
         }
         [HttpGet("GetAll")]

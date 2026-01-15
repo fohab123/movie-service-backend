@@ -54,7 +54,18 @@ namespace movie_service_backend.Repo
             _context.Ratings.Update(entity);
         }
 
-        
+        public async Task<Rating?> GetUserFilmRatingAsync(int userId, int filmId)
+        {
+            return await _context.Ratings
+                .FirstOrDefaultAsync(r => r.UserId == userId && r.FilmId == filmId);
+        }
+
+        public async Task<Rating?> GetUserSeriesRatingAsync(int userId, int seriesId)
+        {
+            return await _context.Ratings
+                .FirstOrDefaultAsync(r => r.UserId == userId && r.SeriesId == seriesId);
+        }
+
 
     }
 }

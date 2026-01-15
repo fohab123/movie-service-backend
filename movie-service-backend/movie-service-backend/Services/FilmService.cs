@@ -169,5 +169,32 @@ namespace movie_service_backend.Services
                 GlobalRating = bestFilm.GlobalRating
             };
         }
+
+        public async Task<IEnumerable<FilmDTO>> GetTrendingFilmsAsync()
+        {
+            var films = await _repo.GetAllWithRatingsCommentsAsync();
+
+            var sinceDate = DateTime.UtcNow.AddDays(-30);
+
+            var trending = films.
+                Select(f => new
+                {
+                    Film = f,
+                    RecentRatings = f.Ratings.Where(r => r.CreatedAt >= sinceDate)
+                    .ToList()
+                })
+                .Where(x => x.RecentRatings.Any())
+                .Select(x => new
+                {
+                    x.Film,
+                    AvgRating = x.RecentRatings.Average(r => r.Value)
+                })
+                .OrderByDescending(x => x.AvgRating)
+                .Take(10)
+                .Select(x => x.Film)
+                .ToList();
+
+            return _mapper.Map<IEnumerable<FilmDTO>>(trending);
+        }
     }
 }

@@ -88,5 +88,82 @@ namespace movie_service_backend.Services
             return _mapper.Map<List<SeriesDTO>>(films);
 
         }
+
+        public async Task<RecommendedSeriesDTO?> GetRecommendationAsync(int userId)
+        {
+            var userRatings = await _repo.GetUserRatingsWithGenresAsync(userId);
+            if (!userRatings.Any())
+                return null;
+            var genreScores = userRatings
+                .SelectMany(r => r.Series.Genre.Select(g => new { GenreId = g.Id, r.Value }))
+                .GroupBy(x => x.GenreId)
+                .Select(g => new
+                {
+                    GenreId = g.Key,
+                    AvgScore = g.Average(x => x.Value)
+                })
+                .OrderByDescending(x => x.AvgScore)
+                .ToList();
+
+            var series = await _repo.GetAllSeriesWithRatingsAsync();
+
+            var scoredSeries = series.Select(s => new
+            {
+                Series = s,
+
+                GenreScore = s.Genre
+                    .Where(g => genreScores.Any(gs => gs.GenreId == g.Id))
+                    .Sum(g => genreScores.First(gs => gs.GenreId == g.Id).AvgScore),
+
+                GlobalRating = s.Ratings.Any()
+                    ? s.Ratings.Average(r => r.Value)
+                    : 0
+            }).ToList();
+
+            double maxGenreScore = scoredSeries.Max(x => x.GenreScore);
+
+            var bestSeries = scoredSeries
+                .Where(x => x.GenreScore == maxGenreScore)
+                .OrderByDescending(x => x.GlobalRating)
+                .FirstOrDefault();
+            if (bestSeries == null)
+                return null;
+
+            return new RecommendedSeriesDTO
+            {
+                SeriesId = bestSeries.Series.Id,
+                Title = bestSeries.Series.Title,
+                PosterUrl = bestSeries.Series.PosterUrl,
+                Score = bestSeries.GenreScore,
+                GlobalRating = bestSeries.GlobalRating
+            };
+        }
+
+        public async Task<IEnumerable<SeriesDTO>> GetTrendingSeriesAsync()
+        {
+            var series = await _repo.GetAllWithRatingsCommentsAsync();
+
+            var sinceDate = DateTime.UtcNow.AddDays(-30);
+
+            var trending = series.
+                Select(s => new
+                {
+                    Series = s,
+                    RecentRatings = s.Ratings.Where(r => r.CreatedAt >= sinceDate)
+                    .ToList()
+                })
+                .Where(x => x.RecentRatings.Any())
+                .Select(x => new
+                {
+                    x.Series,
+                    AvgRating = x.RecentRatings.Average(r => r.Value)
+                })
+                .OrderByDescending(x => x.AvgRating)
+                .Take(10)
+                .Select(x => x.Series)
+                .ToList();
+
+            return _mapper.Map<IEnumerable<SeriesDTO>>(trending);
+        }
     }
 }

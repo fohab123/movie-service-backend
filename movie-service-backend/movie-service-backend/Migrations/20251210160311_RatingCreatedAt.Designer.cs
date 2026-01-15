@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using movie_service_backend.Data;
 
@@ -11,9 +12,11 @@ using movie_service_backend.Data;
 namespace movie_service_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251210160311_RatingCreatedAt")]
+    partial class RatingCreatedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,13 +144,7 @@ namespace movie_service_backend.Migrations
 
                     b.HasIndex("SeriesId");
 
-                    b.HasIndex("UserId", "FilmId")
-                        .IsUnique()
-                        .HasFilter("[FilmId] IS NOT NULL");
-
-                    b.HasIndex("UserId", "SeriesId")
-                        .IsUnique()
-                        .HasFilter("[SeriesId] IS NOT NULL");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Ratings");
                 });
@@ -205,67 +202,6 @@ namespace movie_service_backend.Migrations
                     b.HasIndex("SeriesId");
 
                     b.ToTable("SeriesGenre");
-                });
-
-            modelBuilder.Entity("movie_service_backend.Models.DebatePost", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("DebatePosts");
-                });
-
-            modelBuilder.Entity("movie_service_backend.Models.DebatePostLike", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DebatePostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DebatePostId");
-
-                    b.HasIndex("UserId", "DebatePostId")
-                        .IsUnique();
-
-                    b.ToTable("DebatePostLikes");
                 });
 
             modelBuilder.Entity("movie_service_backend.Models.Genre", b =>
@@ -410,43 +346,6 @@ namespace movie_service_backend.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("movie_service_backend.Models.DebatePost", b =>
-                {
-                    b.HasOne("movie_service_backend.Models.DebatePost", "Parent")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("movie_service_backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Parent");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("movie_service_backend.Models.DebatePostLike", b =>
-                {
-                    b.HasOne("movie_service_backend.Models.DebatePost", "DebatePost")
-                        .WithMany("Likes")
-                        .HasForeignKey("DebatePostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("movie_service_backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("DebatePost");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Film", b =>
                 {
                     b.Navigation("Comments");
@@ -459,13 +358,6 @@ namespace movie_service_backend.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Ratings");
-                });
-
-            modelBuilder.Entity("movie_service_backend.Models.DebatePost", b =>
-                {
-                    b.Navigation("Likes");
-
-                    b.Navigation("Replies");
                 });
 #pragma warning restore 612, 618
         }

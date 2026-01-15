@@ -42,5 +42,15 @@ namespace movie_service_backend.Repo
         {
             _context.Comments.Update(entity);
         }
+        public async Task<Comment?> GetLastUserCommentAsync(int userId, int? filmId, int? seriesId)
+        {
+            return await _context.Comments
+                .Where(c => 
+                c.UserId == userId &&
+                c.FilmId == filmId && 
+                c.SeriesId == seriesId)
+                .OrderByDescending(c=> c.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
     }
 }

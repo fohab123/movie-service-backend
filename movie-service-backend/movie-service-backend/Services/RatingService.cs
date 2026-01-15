@@ -18,16 +18,28 @@ namespace movie_service_backend.Services
 
         public async Task<RatingDTO> CreateForFilmAsync(RatingCreateFilmDTO dto)
         {
+            var existing = await _repo.GetUserFilmRatingAsync(dto.UserId, dto.FilmId);
+            if (existing != null)
+                return null;
+
             var rating = _mapper.Map<Rating>(dto);
+
             await _repo.AddAsync(rating);
             await _repo.SaveChangesAsync();
+
             return _mapper.Map<RatingDTO>(rating);
         }
         public async Task<RatingDTO> CreateForSeriesAsync(RatingCreateSeriesDTO dto)
         {
+            var existing = await _repo.GetUserSeriesRatingAsync(dto.UserId, dto.SeriesId);
+            if (existing != null)
+                return null;
+
             var rating = _mapper.Map<Rating>(dto);
+
             await _repo.AddAsync(rating);
             await _repo.SaveChangesAsync();
+
             return _mapper.Map<RatingDTO>(rating);
         }
 
@@ -62,5 +74,6 @@ namespace movie_service_backend.Services
             await _repo.SaveChangesAsync();
             return _mapper.Map<RatingDTO>(rating);
         }
+
     }
 }

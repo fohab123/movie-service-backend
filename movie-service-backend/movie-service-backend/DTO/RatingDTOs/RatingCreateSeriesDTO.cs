@@ -7,7 +7,7 @@ namespace movie_service_backend.DTO.RatingDTOs
         [Required]
         public int UserId { get; set; }
 
-        public int? SeriesId { get; set; }
+        public int SeriesId { get; set; }
 
 
         [Range(1, 10)]

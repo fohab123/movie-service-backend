@@ -12,5 +12,6 @@ namespace movie_service_backend.Interfaces
         Task<IEnumerable<FilmGenreGroupDTO>> GetFilmsGroupedByGenreAsync();
         Task<IEnumerable<object>> GetAllSortedByDateAsync();
         Task<RecommendedFilmDTO?> GetRecommendationAsync(int userId);
+        Task<IEnumerable<FilmDTO>> GetTrendingFilmsAsync();
     }
 }

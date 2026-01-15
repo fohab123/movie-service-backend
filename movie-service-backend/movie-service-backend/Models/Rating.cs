@@ -21,4 +21,5 @@ public class Rating
 
     [Range(1, 10)]
     public int Value { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

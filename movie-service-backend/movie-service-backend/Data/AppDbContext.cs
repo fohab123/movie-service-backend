@@ -13,6 +13,9 @@ namespace movie_service_backend.Data
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Genre> Genres { get; set; }
+        public DbSet<DebatePost> DebatePosts { get; set; }
+        public DbSet<DebatePostLike> DebatePostLikes { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,6 +40,47 @@ namespace movie_service_backend.Data
                     j => j.HasOne<Genre>().WithMany().HasForeignKey("GenreId"),
                     j => j.HasOne<Series>().WithMany().HasForeignKey("SeriesId")
                 );
+
+            modelBuilder.Entity<DebatePost>()
+                .HasOne(p => p.Parent)
+                .WithMany(p => p.Replies)
+                .HasForeignKey(p => p.ParentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+
+            modelBuilder.Entity<Rating>()
+                .HasIndex(r => new { r.UserId, r.FilmId })
+                .IsUnique()
+                .HasFilter("[FilmId] IS NOT NULL");
+
+            modelBuilder.Entity<Rating>()
+                .HasIndex(r => new { r.UserId, r.SeriesId })
+                .IsUnique()
+                .HasFilter("[SeriesId] IS NOT NULL");
+            modelBuilder.Entity<DebatePost>()
+                .HasOne(p => p.Parent)
+                .WithMany(p => p.Replies)
+                .HasForeignKey(p => p.ParentId)
+                .OnDelete(DeleteBehavior.NoAction); 
+
+            modelBuilder.Entity<DebatePostLike>()
+                .HasIndex(l => new { l.UserId, l.DebatePostId })
+                .IsUnique();
+
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<DebatePostLike>()
+                .HasOne(l => l.User)
+                .WithMany()
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DebatePostLike>()
+                .HasOne(l => l.DebatePost)
+                .WithMany(p => p.Likes)
+                .HasForeignKey(l => l.DebatePostId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
+
     }
 }
