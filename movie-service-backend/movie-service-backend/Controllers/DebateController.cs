@@ -51,7 +51,7 @@ namespace movie_service_backend.Controllers
         [HttpPost("like/{postId}")]
         public async Task<IActionResult> ToggleLike(int postId)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userId = int.Parse(User.FindFirst("userId")!.Value);
 
             try
             {
