@@ -28,7 +28,8 @@ namespace movie_service_backend.Repo
             return await _context.DebatePosts
                 .Include(p=>p.User)
                 .Include(l=>l.Likes)
-                .OrderBy(p=>p.CreatedAt)
+                .OrderByDescending(p=>p.Likes.Count)
+                .ThenByDescending(p=>p.CreatedAt)
                 .ToListAsync();
         }
 

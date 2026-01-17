@@ -72,8 +72,14 @@ namespace movie_service_backend.Services
         {
             var post = await _repo.GetByIdAsync(postId);
             if (post == null) return null;
-            return _mapper.Map<DebatePostDTO>(post);
+
+            var dto = _mapper.Map<DebatePostDTO>(post);
+
+            dto.LikesCount = await _likeRepo.CountByPostAsync(postId);
+
+            return dto;
         }
+
         public async Task ToggleLikeAsync(int userId, int postId)
         {
             // 1. Proveri da li post postoji
@@ -105,5 +111,6 @@ namespace movie_service_backend.Services
         {
             return await _likeRepo.CountByPostAsync(postId);
         }
+        
     }
 }

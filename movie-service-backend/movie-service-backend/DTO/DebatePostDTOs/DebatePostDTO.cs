@@ -12,5 +12,7 @@
         public int LikesCount { get; set; }
 
         public List<DebatePostDTO> Replies { get; set; } = new List<DebatePostDTO>();
+        
     }
+
 }

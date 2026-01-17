@@ -8,7 +8,9 @@ namespace movie_service_backend.Mapping
     {
         public FilmProfile()
         {
-            CreateMap<Film, FilmDTO>();
+            CreateMap<Film, FilmDTO>()
+                .ForMember(dest => dest.Genres,
+        opt => opt.MapFrom(src => src.Genre)); ;
             CreateMap<Genre, GenreDTO>();
             CreateMap<FilmCreateDTO, Film>()
     .ForMember(dest => dest.Genre, opt => opt.Ignore());
