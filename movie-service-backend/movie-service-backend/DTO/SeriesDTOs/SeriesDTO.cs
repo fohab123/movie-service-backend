@@ -1,5 +1,4 @@
-﻿using movie_service_backend.DTO.FilmDTOs;
-using movie_service_backend.Models;
+using movie_service_backend.DTO.FilmDTOs;
 
 namespace movie_service_backend.DTO.SeriesDTOs
 {
@@ -12,8 +11,8 @@ namespace movie_service_backend.DTO.SeriesDTOs
         public int Seasons { get; set; }
         public string Director { get; set; }
         public string PosterUrl { get; set; }
-        public DateTime CreatedAt {  get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public GenreDTO Genre { get; set; }
+        public ICollection<GenreDTO> Genres { get; set; }
     }
 }

@@ -75,11 +75,18 @@ namespace movie_service_backend.Services
             var series = await _repo.GetAllAsync();
             var seriesDTOs = _mapper.Map<List<SeriesDTO>>(series);
 
-            var grouped = seriesDTOs.GroupBy(f => f.Genre.Id).Select(g => new SeriesGenreGroupDTO
-            {
-                Genre = g.First().Genre,
-                Series = g.ToList()
-            }).ToList();
+            var genreSeriesPairs = seriesDTOs
+                .SelectMany(s => s.Genres, (s, g) => new { Series = s, Genre = g });
+
+            var grouped = genreSeriesPairs
+                .GroupBy(x => x.Genre.Id)
+                .Select(g => new SeriesGenreGroupDTO
+                {
+                    Genre = g.First().Genre,
+                    Series = g.Select(x => x.Series).ToList()
+                })
+                .ToList();
+
             return grouped;
         }
         public async Task<IEnumerable<object>> GetAllSortedByDateAsync()

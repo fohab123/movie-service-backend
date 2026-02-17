@@ -67,5 +67,11 @@ namespace movie_service_backend.Controllers
             var result = await _seriesService.GetTrendingSeriesAsync();
             return Ok(result);
         }
+        [HttpGet("GroupedByGenre")]
+        public async Task<IActionResult> GetGroupedByGenre()
+        {
+            var result = await _seriesService.GetSeriesGroupedByGenreAsync();
+            return Ok(result);
+        }
     }
 }

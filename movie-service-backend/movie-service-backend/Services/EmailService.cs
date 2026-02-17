@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Mail;
 
 namespace movie_service_backend.Services
@@ -12,13 +12,11 @@ namespace movie_service_backend.Services
             _config = config;
         }
 
-        public async Task SendVerificationEmailAsync(string email, string token)
+        public async Task SendVerificationEmailAsync(string email, string verificationCode)
         {
-            var verificationLink = $"{_config["FrontendUrl"]}/verify-email?token={token}";
-
             var message = new MailMessage();
             message.To.Add(email);
-            message.Subject = "Verify your account";
+            message.Subject = "Your verification code";
             message.IsBodyHtml = true;
             message.Body = $@"
             <table width=""100%"" cellspacing=""0"" cellpadding=""0"" style=""background:#f6f6f6;padding:40px 0;font-family:Arial,sans-serif;"">
@@ -27,41 +25,34 @@ namespace movie_service_backend.Services
                   <table width=""500"" cellspacing=""0"" cellpadding=""0"" style=""background:white;border-radius:10px;padding:30px;"">
                     <tr>
                       <td align=""center"" style=""font-size:24px;font-weight:bold;color:#333;"">
-                        👋 Welcome to MovieApp!
+                        Welcome to MovieApp!
                       </td>
                     </tr>
 
                     <tr>
-                      <td style=""padding-top:20px;font-size:16px;color:#555;line-height:22px;"">
-                        Thank you for registering. To activate your account, please confirm your email address by clicking the button below:
+                      <td style=""padding-top:20px;font-size:16px;color:#555;line-height:22px;text-align:center;"">
+                        Thank you for registering. Use the code below to verify your email address:
                       </td>
                     </tr>
 
                     <tr>
                       <td align=""center"" style=""padding:30px 0;"">
-                        <a href=""{verificationLink}"" 
-                           style=""background:#007bff;color:white;text-decoration:none;
-                                  padding:14px 28px;border-radius:6px;font-size:16px;display:inline-block;"">
-                          Verify Email
-                        </a>
+                        <div style=""font-size:36px;font-weight:bold;letter-spacing:8px;color:#333;
+                                    background:#f0f0f0;display:inline-block;padding:16px 32px;border-radius:10px;"">
+                          {verificationCode}
+                        </div>
                       </td>
                     </tr>
 
                     <tr>
-                      <td style=""font-size:14px;color:#777;padding-top:15px;"">
-                        If the button doesn't work, copy and paste the following link:
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td style=""padding-top:10px;font-size:13px;color:#007bff;word-break:break-all;"">
-                        {verificationLink}
+                      <td style=""font-size:14px;color:#777;text-align:center;"">
+                        Enter this code on the verification page to activate your account.
                       </td>
                     </tr>
 
                     <tr>
                       <td style=""padding-top:25px;font-size:12px;color:#aaa;text-align:center;"">
-                        © {DateTime.UtcNow.Year} MovieApp Inc. All rights reserved.
+                        &copy; {DateTime.UtcNow.Year} MovieApp Inc. All rights reserved.
                       </td>
                     </tr>
                   </table>

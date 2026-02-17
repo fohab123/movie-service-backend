@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using movie_service_backend.DTO.UserDTOs;
 using movie_service_backend.Interfaces;
 using movie_service_backend.Models;
@@ -31,7 +31,7 @@ namespace movie_service_backend.Services
             users.Password = _passwordService.HashPassword(dto.Password);
 
             users.IsEmailVerified = false;
-            users.EmailVerificationToken = Guid.NewGuid().ToString(); // generiši token
+            users.EmailVerificationToken = new Random().Next(100000, 999999).ToString();
 
             await _repo.AddAsync(users);
             await _repo.SaveChangesAsync();
