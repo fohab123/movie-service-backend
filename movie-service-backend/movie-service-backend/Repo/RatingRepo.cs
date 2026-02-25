@@ -66,6 +66,18 @@ namespace movie_service_backend.Repo
                 .FirstOrDefaultAsync(r => r.UserId == userId && r.SeriesId == seriesId);
         }
 
+        public async Task<IEnumerable<Rating>> GetByFilmIdAsync(int filmId)
+        {
+            return await _context.Ratings
+                .Where(r => r.FilmId == filmId)
+                .ToListAsync();
+        }
 
+        public async Task<IEnumerable<Rating>> GetBySeriesIdAsync(int seriesId)
+        {
+            return await _context.Ratings
+                .Where(r => r.SeriesId == seriesId)
+                .ToListAsync();
+        }
     }
 }

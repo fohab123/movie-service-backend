@@ -45,12 +45,30 @@ namespace movie_service_backend.Repo
         public async Task<Comment?> GetLastUserCommentAsync(int userId, int? filmId, int? seriesId)
         {
             return await _context.Comments
-                .Where(c => 
+                .Where(c =>
                 c.UserId == userId &&
-                c.FilmId == filmId && 
+                c.FilmId == filmId &&
                 c.SeriesId == seriesId)
-                .OrderByDescending(c=> c.CreatedAt)
+                .OrderByDescending(c => c.CreatedAt)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<Comment>> GetByFilmIdAsync(int filmId)
+        {
+            return await _context.Comments
+                .Include(c => c.User)
+                .Where(c => c.FilmId == filmId)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Comment>> GetBySeriesIdAsync(int seriesId)
+        {
+            return await _context.Comments
+                .Include(c => c.User)
+                .Where(c => c.SeriesId == seriesId)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
         }
     }
 }

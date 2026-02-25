@@ -83,20 +83,20 @@ namespace movie_service_backend.Services
 
         public async Task<IEnumerable<FilmGenreGroupDTO>> GetFilmsGroupedByGenreAsync()
         {
-            var films = await _repo.GetAllAsync();
+            var films = await _repo.GetAllFilmsWithRatingsAsync();
             var filmDTOs = _mapper.Map<List<FilmDTO>>(films);
 
-            // Flatten: za svaki film, za svaki njegov žanr, napravi "par"
             var genreFilmPairs = filmDTOs
                 .SelectMany(f => f.Genres, (f, g) => new { Film = f, Genre = g });
 
-            // Grupisanje po žanru
             var grouped = genreFilmPairs
                 .GroupBy(x => x.Genre.Id)
                 .Select(g => new FilmGenreGroupDTO
                 {
                     Genre = g.First().Genre,
-                    Films = g.Select(x => x.Film).ToList()
+                    Films = g.Select(x => x.Film)
+                             .OrderByDescending(f => f.Rating ?? 0)
+                             .ToList()
                 })
                 .ToList();
 
@@ -111,15 +111,13 @@ namespace movie_service_backend.Services
         }
 
 
-        public async Task<RecommendedFilmDTO?> GetRecommendationAsync(int userId)
+        public async Task<IEnumerable<RecommendedFilmDTO>> GetRecommendationAsync(int userId)
         {
-            // 1. Uzmi sve ocene korisnika (sa filmovima i žanrovima)
             var userRatings = await _repo.GetUserRatingsWithGenresAsync(userId);
 
             if (!userRatings.Any())
-                return null;
+                return Enumerable.Empty<RecommendedFilmDTO>();
 
-            // 2. Izračunaj prosečan score po žanru od strane korisnika
             var genreScores = userRatings
                 .SelectMany(r => r.Film.Genre.Select(g => new { GenreId = g.Id, r.Value }))
                 .GroupBy(x => x.GenreId)
@@ -128,46 +126,35 @@ namespace movie_service_backend.Services
                     GenreId = g.Key,
                     AvgScore = g.Average(x => x.Value)
                 })
-                .OrderByDescending(x => x.AvgScore)
                 .ToList();
 
-            // 3. Uzmi sve filmove sa ocenama
             var films = await _repo.GetAllFilmsWithRatingsAsync();
 
-            // 4. Izračunaj GenreScore + GlobalRating
-            var scoredFilms = films.Select(f => new
+            var recommendations = films.Select(f => new
             {
                 Film = f,
-
                 GenreScore = f.Genre
                     .Where(g => genreScores.Any(gs => gs.GenreId == g.Id))
                     .Sum(g => genreScores.First(gs => gs.GenreId == g.Id).AvgScore),
-
                 GlobalRating = f.Ratings.Any()
                     ? f.Ratings.Average(r => r.Value)
                     : 0
-            }).ToList();
-
-            // Ako nijedan film nema score > 0, nema smisla preporuka
-            double maxGenreScore = scoredFilms.Max(x => x.GenreScore);
-
-            var bestFilm = scoredFilms
-                .Where(x => x.GenreScore == maxGenreScore)
-                .OrderByDescending(x => x.GlobalRating)
-                .FirstOrDefault();
-
-            if (bestFilm == null)
-                return null;
-
-            // 5. Mapiranje u DTO
-            return new RecommendedFilmDTO
+            })
+            .Where(x => x.GenreScore > 0)
+            .OrderByDescending(x => x.GenreScore)
+            .ThenByDescending(x => x.GlobalRating)
+            .Take(10)
+            .Select(x => new RecommendedFilmDTO
             {
-                FilmId = bestFilm.Film.Id,
-                Title = bestFilm.Film.Title,
-                PosterUrl = bestFilm.Film.PosterUrl,
-                Score = bestFilm.GenreScore,
-                GlobalRating = bestFilm.GlobalRating
-            };
+                FilmId = x.Film.Id,
+                Title = x.Film.Title,
+                PosterUrl = x.Film.PosterUrl,
+                Score = x.GenreScore,
+                GlobalRating = x.GlobalRating
+            })
+            .ToList();
+
+            return recommendations;
         }
 
         public async Task<IEnumerable<FilmDTO>> GetTrendingFilmsAsync()

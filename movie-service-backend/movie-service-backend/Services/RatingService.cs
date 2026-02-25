@@ -75,5 +75,28 @@ namespace movie_service_backend.Services
             return _mapper.Map<RatingDTO>(rating);
         }
 
+        public async Task<IEnumerable<RatingDTO>> GetByFilmIdAsync(int filmId)
+        {
+            var ratings = await _repo.GetByFilmIdAsync(filmId);
+            return _mapper.Map<IEnumerable<RatingDTO>>(ratings);
+        }
+
+        public async Task<IEnumerable<RatingDTO>> GetBySeriesIdAsync(int seriesId)
+        {
+            var ratings = await _repo.GetBySeriesIdAsync(seriesId);
+            return _mapper.Map<IEnumerable<RatingDTO>>(ratings);
+        }
+
+        public async Task<RatingDTO?> GetUserFilmRatingAsync(int userId, int filmId)
+        {
+            var rating = await _repo.GetUserFilmRatingAsync(userId, filmId);
+            return rating == null ? null : _mapper.Map<RatingDTO>(rating);
+        }
+
+        public async Task<RatingDTO?> GetUserSeriesRatingAsync(int userId, int seriesId)
+        {
+            var rating = await _repo.GetUserSeriesRatingAsync(userId, seriesId);
+            return rating == null ? null : _mapper.Map<RatingDTO>(rating);
+        }
     }
 }

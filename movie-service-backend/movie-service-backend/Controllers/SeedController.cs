@@ -220,5 +220,102 @@ namespace movie_service_backend.Controllers
 
             return Ok($"Import complete. {filmsImported} films and {seriesImported} series imported.");
         }
+
+        [HttpPost("seed-interactions")]
+        public async Task<IActionResult> SeedInteractions()
+        {
+            var random = new Random(42);
+
+            var users = await _context.Users.ToListAsync();
+            if (!users.Any()) return BadRequest("No users found.");
+
+            var films = await _context.Films.Take(30).ToListAsync();
+            var series = await _context.Series.Take(30).ToListAsync();
+
+            if (!films.Any() && !series.Any())
+                return BadRequest("No films or series found.");
+
+            var sampleComments = new[]
+            {
+                "Absolutely loved this one!", "A masterpiece of its genre.",
+                "Great watch, highly recommended.", "Really enjoyed the storyline.",
+                "Fantastic performances all around.", "One of the best I've seen.",
+                "Kept me hooked from start to finish.", "A bit slow but worth it.",
+                "Superb cinematography and writing.", "Could not stop watching!",
+                "Interesting concept, well executed.", "A solid entry in the genre."
+            };
+
+            int ratingsAdded = 0;
+            int commentsAdded = 0;
+
+            foreach (var user in users)
+            {
+                // Pick ~10 random films to rate
+                var filmsToRate = films.OrderBy(_ => random.Next()).Take(Math.Min(10, films.Count)).ToList();
+                foreach (var film in filmsToRate)
+                {
+                    var exists = await _context.Ratings.AnyAsync(r => r.UserId == user.Id && r.FilmId == film.Id);
+                    if (exists) continue;
+
+                    _context.Ratings.Add(new Rating
+                    {
+                        UserId = user.Id,
+                        FilmId = film.Id,
+                        Value = random.Next(6, 11),
+                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 30))
+                    });
+                    ratingsAdded++;
+                }
+
+                // Pick ~10 random series to rate
+                var seriesToRate = series.OrderBy(_ => random.Next()).Take(Math.Min(10, series.Count)).ToList();
+                foreach (var s in seriesToRate)
+                {
+                    var exists = await _context.Ratings.AnyAsync(r => r.UserId == user.Id && r.SeriesId == s.Id);
+                    if (exists) continue;
+
+                    _context.Ratings.Add(new Rating
+                    {
+                        UserId = user.Id,
+                        SeriesId = s.Id,
+                        Value = random.Next(6, 11),
+                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 30))
+                    });
+                    ratingsAdded++;
+                }
+
+                // Pick 2 random films to comment on
+                var filmsToComment = films.OrderBy(_ => random.Next()).Take(2).ToList();
+                foreach (var film in filmsToComment)
+                {
+                    _context.Comments.Add(new Comment
+                    {
+                        UserId = user.Id,
+                        FilmId = film.Id,
+                        Text = sampleComments[random.Next(sampleComments.Length)],
+                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 30))
+                    });
+                    commentsAdded++;
+                }
+
+                // Pick 2 random series to comment on
+                var seriesToComment = series.OrderBy(_ => random.Next()).Take(2).ToList();
+                foreach (var s in seriesToComment)
+                {
+                    _context.Comments.Add(new Comment
+                    {
+                        UserId = user.Id,
+                        SeriesId = s.Id,
+                        Text = sampleComments[random.Next(sampleComments.Length)],
+                        CreatedAt = DateTime.UtcNow.AddDays(-random.Next(1, 30))
+                    });
+                    commentsAdded++;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok($"Seeded {ratingsAdded} ratings and {commentsAdded} comments across {users.Count} users.");
+        }
     }
 }

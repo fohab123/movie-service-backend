@@ -15,6 +15,7 @@ namespace movie_service_backend.Data
         public DbSet<Genre> Genres { get; set; }
         public DbSet<DebatePost> DebatePosts { get; set; }
         public DbSet<DebatePostLike> DebatePostLikes { get; set; }
+        public DbSet<WatchlistItem> WatchlistItems { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -79,6 +80,23 @@ namespace movie_service_backend.Data
                 .HasOne(l => l.DebatePost)
                 .WithMany(p => p.Likes)
                 .HasForeignKey(l => l.DebatePostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // WatchlistItem – one user can add each film only once
+            modelBuilder.Entity<WatchlistItem>()
+                .HasIndex(w => new { w.UserId, w.FilmId })
+                .IsUnique();
+
+            modelBuilder.Entity<WatchlistItem>()
+                .HasOne(w => w.User)
+                .WithMany()
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WatchlistItem>()
+                .HasOne(w => w.Film)
+                .WithMany()
+                .HasForeignKey(w => w.FilmId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 

@@ -11,5 +11,7 @@ namespace movie_service_backend.Interfaces
         Task<CommentDTO> CreateForSeriesAsync(CommentCreateSeriesDTO dto);
         Task<CommentDTO> UpdateAsync(int id, CommentUpdateDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<CommentDTO>> GetByFilmIdAsync(int filmId);
+        Task<IEnumerable<CommentDTO>> GetBySeriesIdAsync(int seriesId);
     }
 }

@@ -61,5 +61,17 @@ namespace movie_service_backend.Controllers
             await _commentService.DeleteAsync(id);
             return Ok("Comment successfully deleted.");
         }
+
+        [HttpGet("film/{filmId}")]
+        public async Task<IActionResult> GetByFilmId(int filmId)
+        {
+            return Ok(await _commentService.GetByFilmIdAsync(filmId));
+        }
+
+        [HttpGet("series/{seriesId}")]
+        public async Task<IActionResult> GetBySeriesId(int seriesId)
+        {
+            return Ok(await _commentService.GetBySeriesIdAsync(seriesId));
+        }
     }
 }

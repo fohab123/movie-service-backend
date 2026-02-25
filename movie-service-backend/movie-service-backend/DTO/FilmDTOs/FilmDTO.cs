@@ -12,6 +12,7 @@ namespace movie_service_backend.DTO.FilmDTOs
         public string Director { get; set; }
         public string PosterUrl { get; set; }
         public DateTime CreatedAt { get; set; }
+        public double? Rating { get; set; }
 
         // Navigacioni DTO
         public ICollection<GenreDTO> Genres { get; set; }

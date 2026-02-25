@@ -11,7 +11,7 @@ namespace movie_service_backend.Interfaces
         Task<bool> DeleteFilmAsync(int id);
         Task<IEnumerable<FilmGenreGroupDTO>> GetFilmsGroupedByGenreAsync();
         Task<IEnumerable<object>> GetAllSortedByDateAsync();
-        Task<RecommendedFilmDTO?> GetRecommendationAsync(int userId);
+        Task<IEnumerable<RecommendedFilmDTO>> GetRecommendationAsync(int userId);
         Task<IEnumerable<FilmDTO>> GetTrendingFilmsAsync();
     }
 }

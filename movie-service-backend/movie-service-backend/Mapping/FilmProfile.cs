@@ -9,8 +9,11 @@ namespace movie_service_backend.Mapping
         public FilmProfile()
         {
             CreateMap<Film, FilmDTO>()
-                .ForMember(dest => dest.Genres,
-        opt => opt.MapFrom(src => src.Genre)); ;
+                .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Genre))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src =>
+                    src.Ratings != null && src.Ratings.Any()
+                        ? (double?)src.Ratings.Average(r => r.Value)
+                        : null));
             CreateMap<Genre, GenreDTO>();
             CreateMap<FilmCreateDTO, Film>()
     .ForMember(dest => dest.Genre, opt => opt.Ignore());

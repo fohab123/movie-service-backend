@@ -61,9 +61,9 @@ namespace movie_service_backend.Repo
         public async Task<List<Rating>> GetUserRatingsWithGenresAsync(int userId)
         {
             return await _context.Ratings
-                .Where(r=>r.UserId== userId && r.FilmId != null)
-                .Include(r=>r.Film)
-                .ThenInclude(f=>f.Genre)
+                .Where(r => r.UserId == userId && r.SeriesId != null)
+                .Include(r => r.Series)
+                .ThenInclude(s => s.Genre)
                 .ToListAsync();
         }
         public async Task<List<Series>> GetAllSeriesWithRatingsAsync()

@@ -59,6 +59,34 @@ namespace movie_service_backend.Controllers
             await _ratingService.DeleteAsync(id);
             return Ok("Rating successfully deleted.");
         }
+
+        [HttpGet("film/{filmId}")]
+        public async Task<IActionResult> GetByFilmId(int filmId)
+        {
+            return Ok(await _ratingService.GetByFilmIdAsync(filmId));
+        }
+
+        [HttpGet("series/{seriesId}")]
+        public async Task<IActionResult> GetBySeriesId(int seriesId)
+        {
+            return Ok(await _ratingService.GetBySeriesIdAsync(seriesId));
+        }
+
+        [HttpGet("user/{userId}/film/{filmId}")]
+        public async Task<IActionResult> GetUserFilmRating(int userId, int filmId)
+        {
+            var rating = await _ratingService.GetUserFilmRatingAsync(userId, filmId);
+            if (rating == null) return NotFound();
+            return Ok(rating);
+        }
+
+        [HttpGet("user/{userId}/series/{seriesId}")]
+        public async Task<IActionResult> GetUserSeriesRating(int userId, int seriesId)
+        {
+            var rating = await _ratingService.GetUserSeriesRatingAsync(userId, seriesId);
+            if (rating == null) return NotFound();
+            return Ok(rating);
+        }
     }
-    
+
 }

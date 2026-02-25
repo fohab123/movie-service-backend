@@ -72,7 +72,7 @@ namespace movie_service_backend.Services
         }
         public async Task<IEnumerable<object>> GetSeriesGroupedByGenreAsync()
         {
-            var series = await _repo.GetAllAsync();
+            var series = await _repo.GetAllSeriesWithRatingsAsync();
             var seriesDTOs = _mapper.Map<List<SeriesDTO>>(series);
 
             var genreSeriesPairs = seriesDTOs
@@ -83,7 +83,9 @@ namespace movie_service_backend.Services
                 .Select(g => new SeriesGenreGroupDTO
                 {
                     Genre = g.First().Genre,
-                    Series = g.Select(x => x.Series).ToList()
+                    Series = g.Select(x => x.Series)
+                              .OrderByDescending(s => s.Rating ?? 0)
+                              .ToList()
                 })
                 .ToList();
 
@@ -96,11 +98,12 @@ namespace movie_service_backend.Services
 
         }
 
-        public async Task<RecommendedSeriesDTO?> GetRecommendationAsync(int userId)
+        public async Task<IEnumerable<RecommendedSeriesDTO>> GetRecommendationAsync(int userId)
         {
             var userRatings = await _repo.GetUserRatingsWithGenresAsync(userId);
             if (!userRatings.Any())
-                return null;
+                return Enumerable.Empty<RecommendedSeriesDTO>();
+
             var genreScores = userRatings
                 .SelectMany(r => r.Series.Genre.Select(g => new { GenreId = g.Id, r.Value }))
                 .GroupBy(x => x.GenreId)
@@ -109,41 +112,35 @@ namespace movie_service_backend.Services
                     GenreId = g.Key,
                     AvgScore = g.Average(x => x.Value)
                 })
-                .OrderByDescending(x => x.AvgScore)
                 .ToList();
 
             var series = await _repo.GetAllSeriesWithRatingsAsync();
 
-            var scoredSeries = series.Select(s => new
+            var recommendations = series.Select(s => new
             {
                 Series = s,
-
                 GenreScore = s.Genre
                     .Where(g => genreScores.Any(gs => gs.GenreId == g.Id))
                     .Sum(g => genreScores.First(gs => gs.GenreId == g.Id).AvgScore),
-
                 GlobalRating = s.Ratings.Any()
                     ? s.Ratings.Average(r => r.Value)
                     : 0
-            }).ToList();
-
-            double maxGenreScore = scoredSeries.Max(x => x.GenreScore);
-
-            var bestSeries = scoredSeries
-                .Where(x => x.GenreScore == maxGenreScore)
-                .OrderByDescending(x => x.GlobalRating)
-                .FirstOrDefault();
-            if (bestSeries == null)
-                return null;
-
-            return new RecommendedSeriesDTO
+            })
+            .Where(x => x.GenreScore > 0)
+            .OrderByDescending(x => x.GenreScore)
+            .ThenByDescending(x => x.GlobalRating)
+            .Take(10)
+            .Select(x => new RecommendedSeriesDTO
             {
-                SeriesId = bestSeries.Series.Id,
-                Title = bestSeries.Series.Title,
-                PosterUrl = bestSeries.Series.PosterUrl,
-                Score = bestSeries.GenreScore,
-                GlobalRating = bestSeries.GlobalRating
-            };
+                SeriesId = x.Series.Id,
+                Title = x.Series.Title,
+                PosterUrl = x.Series.PosterUrl,
+                Score = x.GenreScore,
+                GlobalRating = x.GlobalRating
+            })
+            .ToList();
+
+            return recommendations;
         }
 
         public async Task<IEnumerable<SeriesDTO>> GetTrendingSeriesAsync()

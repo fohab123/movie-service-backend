@@ -86,5 +86,17 @@ namespace movie_service_backend.Services
             await _repo.SaveChangesAsync();
             return _mapper.Map<CommentDTO>(comment);
         }
+
+        public async Task<IEnumerable<CommentDTO>> GetByFilmIdAsync(int filmId)
+        {
+            var comments = await _repo.GetByFilmIdAsync(filmId);
+            return _mapper.Map<IEnumerable<CommentDTO>>(comments);
+        }
+
+        public async Task<IEnumerable<CommentDTO>> GetBySeriesIdAsync(int seriesId)
+        {
+            var comments = await _repo.GetBySeriesIdAsync(seriesId);
+            return _mapper.Map<IEnumerable<CommentDTO>>(comments);
+        }
     }
 }

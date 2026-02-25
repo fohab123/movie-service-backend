@@ -32,6 +32,7 @@ namespace movie_service_backend.Startup
             services.AddScoped<CommentRepo>();
             services.AddScoped<DebateRepo>();
             services.AddScoped<DebatePostLikeRepo>();
+            services.AddScoped<WatchlistRepo>();
 
             // Service
             services.AddScoped<IUserService, UserService>();
@@ -40,6 +41,7 @@ namespace movie_service_backend.Startup
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IDebateService, DebateService>();
+            services.AddScoped<IWatchlistService, WatchlistService>();
             services.AddScoped<EmailService>();
             services.AddScoped<PasswordService>();
 

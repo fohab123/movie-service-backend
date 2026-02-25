@@ -12,7 +12,7 @@ namespace movie_service_backend.Interfaces
         Task<bool> DeleteSeriesAsync(int id);
         Task<IEnumerable<object>> GetSeriesGroupedByGenreAsync();
         Task<IEnumerable<object>> GetAllSortedByDateAsync();
-        Task<RecommendedSeriesDTO?> GetRecommendationAsync(int userId);
+        Task<IEnumerable<RecommendedSeriesDTO>> GetRecommendationAsync(int userId);
         Task<IEnumerable<SeriesDTO>> GetTrendingSeriesAsync();
     }
 }
