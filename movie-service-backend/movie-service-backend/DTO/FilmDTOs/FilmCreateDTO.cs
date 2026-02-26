@@ -25,6 +25,9 @@ namespace movie_service_backend.DTO.FilmDTOs
 
         [MaxLength(500)]
         public string PosterUrl { get; set; } // opcionalno
+
+        [MaxLength(500)]
+        public string LandscapeUrl { get; set; } // wide/landscape image for hero banner
     }
 
 }

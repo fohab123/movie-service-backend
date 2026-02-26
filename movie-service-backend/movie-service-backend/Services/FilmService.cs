@@ -66,6 +66,7 @@ namespace movie_service_backend.Services
             film.Director = dto.Director;
             film.Duration = dto.Duration;
             film.PosterUrl = dto.PosterUrl;
+            film.LandscapeUrl = dto.LandscapeUrl;
 
             // Ažuriraj žanrove
             if (dto.GenreId != null && dto.GenreId.Any())

@@ -22,6 +22,7 @@ public class Series
     public int Seasons { get; set; }
 
     public string PosterUrl { get; set; }
+    public string LandscapeUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigacione property

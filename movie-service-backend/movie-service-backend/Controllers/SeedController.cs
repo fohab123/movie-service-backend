@@ -95,6 +95,8 @@ namespace movie_service_backend.Controllers
                     var tmdbId = movie.GetProperty("id").GetInt32();
                     var posterPath = movie.TryGetProperty("poster_path", out var pp) && pp.ValueKind != JsonValueKind.Null
                         ? pp.GetString() : null;
+                    var backdropPath = movie.TryGetProperty("backdrop_path", out var bp) && bp.ValueKind != JsonValueKind.Null
+                        ? bp.GetString() : null;
                     var overview = movie.TryGetProperty("overview", out var ov) ? ov.GetString() ?? "" : "";
                     var releaseDate = movie.TryGetProperty("release_date", out var rd) ? rd.GetString() ?? "" : "";
                     int year = 0;
@@ -124,6 +126,10 @@ namespace movie_service_backend.Controllers
                                 }
                             }
                         }
+
+                        // If backdrop not in discover result, try detail response
+                        if (backdropPath == null && detailJson.RootElement.TryGetProperty("backdrop_path", out var dbp) && dbp.ValueKind != JsonValueKind.Null)
+                            backdropPath = dbp.GetString();
                     }
                     catch { /* skip details on error */ }
 
@@ -138,6 +144,7 @@ namespace movie_service_backend.Controllers
                         Duration = duration > 0 ? duration : 120,
                         Director = director.Length > 100 ? director[..100] : director,
                         PosterUrl = posterPath != null ? $"https://image.tmdb.org/t/p/w500{posterPath}" : "",
+                        LandscapeUrl = backdropPath != null ? $"https://image.tmdb.org/t/p/w1280{backdropPath}" : null,
                         CreatedAt = DateTime.UtcNow,
                         Genre = new List<Genre> { genres[genreName] }
                     };
@@ -169,6 +176,8 @@ namespace movie_service_backend.Controllers
                     var tmdbId = show.GetProperty("id").GetInt32();
                     var posterPath = show.TryGetProperty("poster_path", out var pp) && pp.ValueKind != JsonValueKind.Null
                         ? pp.GetString() : null;
+                    var backdropPath = show.TryGetProperty("backdrop_path", out var bp) && bp.ValueKind != JsonValueKind.Null
+                        ? bp.GetString() : null;
                     var overview = show.TryGetProperty("overview", out var ov) ? ov.GetString() ?? "" : "";
                     var firstAirDate = show.TryGetProperty("first_air_date", out var fad) ? fad.GetString() ?? "" : "";
                     int year = 0;
@@ -194,6 +203,10 @@ namespace movie_service_backend.Controllers
                                 break;
                             }
                         }
+
+                        // If backdrop not in discover result, try detail response
+                        if (backdropPath == null && detailJson.RootElement.TryGetProperty("backdrop_path", out var dbp) && dbp.ValueKind != JsonValueKind.Null)
+                            backdropPath = dbp.GetString();
                     }
                     catch { /* skip details on error */ }
 
@@ -207,6 +220,7 @@ namespace movie_service_backend.Controllers
                         Seasons = seasons,
                         Director = creator.Length > 100 ? creator[..100] : creator,
                         PosterUrl = posterPath != null ? $"https://image.tmdb.org/t/p/w500{posterPath}" : "",
+                        LandscapeUrl = backdropPath != null ? $"https://image.tmdb.org/t/p/w1280{backdropPath}" : null,
                         CreatedAt = DateTime.UtcNow,
                         Genre = new List<Genre> { genres[genreName] }
                     };
@@ -316,6 +330,88 @@ namespace movie_service_backend.Controllers
             }
 
             return Ok($"Seeded {ratingsAdded} ratings and {commentsAdded} comments across {users.Count} users.");
+        }
+
+        /// <summary>
+        /// Backfills LandscapeUrl for all films and series that currently have none.
+        /// Searches TMDB by title, takes the first result's backdrop_path.
+        /// Call once after applying the AddLandscapeUrl migration.
+        /// </summary>
+        [HttpPost("backfill-landscapes")]
+        public async Task<IActionResult> BackfillLandscapes()
+        {
+            var apiKey = _config["Tmdb:ApiKey"];
+            if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_TMDB_API_KEY_HERE")
+                return BadRequest("Please set your TMDB API key in appsettings.json");
+
+            int filmsUpdated = 0;
+            int seriesUpdated = 0;
+
+            // --- Films ---
+            var films = await _context.Films
+                .Where(f => f.LandscapeUrl == null || f.LandscapeUrl == "")
+                .ToListAsync();
+
+            foreach (var film in films)
+            {
+                try
+                {
+                    var encodedTitle = Uri.EscapeDataString(film.Title);
+                    var searchUrl = $"https://api.themoviedb.org/3/search/movie?api_key={apiKey}&query={encodedTitle}&page=1";
+                    var response = await _http.GetStringAsync(searchUrl);
+                    var json = JsonDocument.Parse(response);
+
+                    if (!json.RootElement.TryGetProperty("results", out var results)) continue;
+
+                    foreach (var result in results.EnumerateArray().Take(1))
+                    {
+                        if (result.TryGetProperty("backdrop_path", out var bdp) && bdp.ValueKind != JsonValueKind.Null)
+                        {
+                            film.LandscapeUrl = $"https://image.tmdb.org/t/p/w1280{bdp.GetString()}";
+                            filmsUpdated++;
+                        }
+                    }
+                }
+                catch { /* skip on error */ }
+
+                await Task.Delay(50); // respect TMDB rate limit
+            }
+
+            await _context.SaveChangesAsync();
+
+            // --- Series ---
+            var seriesList = await _context.Series
+                .Where(s => s.LandscapeUrl == null || s.LandscapeUrl == "")
+                .ToListAsync();
+
+            foreach (var s in seriesList)
+            {
+                try
+                {
+                    var encodedTitle = Uri.EscapeDataString(s.Title);
+                    var searchUrl = $"https://api.themoviedb.org/3/search/tv?api_key={apiKey}&query={encodedTitle}&page=1";
+                    var response = await _http.GetStringAsync(searchUrl);
+                    var json = JsonDocument.Parse(response);
+
+                    if (!json.RootElement.TryGetProperty("results", out var results)) continue;
+
+                    foreach (var result in results.EnumerateArray().Take(1))
+                    {
+                        if (result.TryGetProperty("backdrop_path", out var bdp) && bdp.ValueKind != JsonValueKind.Null)
+                        {
+                            s.LandscapeUrl = $"https://image.tmdb.org/t/p/w1280{bdp.GetString()}";
+                            seriesUpdated++;
+                        }
+                    }
+                }
+                catch { /* skip on error */ }
+
+                await Task.Delay(50);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Backfill complete. {filmsUpdated} films and {seriesUpdated} series updated with landscape URLs.");
         }
     }
 }

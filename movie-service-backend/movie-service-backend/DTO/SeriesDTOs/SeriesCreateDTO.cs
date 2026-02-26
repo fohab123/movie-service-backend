@@ -7,6 +7,7 @@
         public int Seasons { get; set; }
         public string Director { get; set; }
         public string PosterUrl { get; set; }
+        public string LandscapeUrl { get; set; }
         public List<int> GenreId { get; set; }
     }
 }

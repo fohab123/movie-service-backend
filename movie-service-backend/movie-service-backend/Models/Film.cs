@@ -22,6 +22,7 @@ public class Film
     public int Duration { get; set; } // u minutima
 
     public string PosterUrl { get; set; }
+    public string LandscapeUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigacione property

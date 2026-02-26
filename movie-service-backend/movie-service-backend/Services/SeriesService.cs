@@ -66,6 +66,7 @@ namespace movie_service_backend.Services
             series.Director = dto.Director;
             series.Seasons = dto.Seasons;
             series.PosterUrl = dto.PosterUrl;
+            series.LandscapeUrl = dto.LandscapeUrl;
             _repo.Update(series);
             await _repo.SaveChangesAsync();
             return _mapper.Map<SeriesDTO>(series);
