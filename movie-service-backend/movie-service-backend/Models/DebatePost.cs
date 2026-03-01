@@ -26,6 +26,20 @@ namespace movie_service_backend.Models
         public int? ParentId { get; set; }
         public DebatePost? Parent { get; set; }
 
+        // Link to Film or Series
+        public int? FilmId { get; set; }
+        public Film? Film { get; set; }
+
+        public int? SeriesId { get; set; }
+        public Series? Series { get; set; }
+
+        // Comma-separated predefined tags e.g. "Spoiler,Theory"
+        public string? Tags { get; set; }
+
+        public bool IsSpoiler { get; set; } = false;
+
+        public int ViewCount { get; set; } = 0;
+
         // Navigation: replies (children)
         public ICollection<DebatePost> Replies { get; set; } = new List<DebatePost>();
         public ICollection<DebatePostLike> Likes { get; set; } = new List<DebatePostLike>();

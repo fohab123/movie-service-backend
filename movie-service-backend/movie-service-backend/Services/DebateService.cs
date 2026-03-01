@@ -1,8 +1,7 @@
-﻿using movie_service_backend.Interfaces;
+using movie_service_backend.Interfaces;
 using movie_service_backend.DTO.DebatePostDTOs;
 using movie_service_backend.Models;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using movie_service_backend.Repo;
 
 namespace movie_service_backend.Services
@@ -12,6 +11,7 @@ namespace movie_service_backend.Services
         private readonly DebatePostLikeRepo _likeRepo;
         private readonly IMapper _mapper;
         private readonly DebateRepo _repo;
+
         public DebateService(IMapper mapper, DebatePostLikeRepo likeRepo, DebateRepo repo)
         {
             _mapper = mapper;
@@ -30,9 +30,13 @@ namespace movie_service_backend.Services
 
             var post = new DebatePost
             {
-                Title = dto.ParentId == null ? dto.Title : null, // title samo root
+                Title = dto.ParentId == null ? dto.Title : null,
                 Content = dto.Content,
-                ParentId = dto.ParentId, // NULL ili validan ID
+                ParentId = dto.ParentId,
+                FilmId = dto.ParentId == null ? dto.FilmId : null,
+                SeriesId = dto.ParentId == null ? dto.SeriesId : null,
+                Tags = dto.ParentId == null && dto.Tags.Any() ? string.Join(",", dto.Tags) : null,
+                IsSpoiler = dto.ParentId == null && dto.IsSpoiler,
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow
             };
@@ -40,14 +44,48 @@ namespace movie_service_backend.Services
             await _repo.AddAsync(post);
             await _repo.SaveChangesAsync();
 
-            return _mapper.Map<DebatePostDTO>(post);
+            // Re-fetch to get User navigation property for mapping
+            var saved = await _repo.GetByIdAsync(post.Id);
+            return MapToDto(saved!, userId);
+        }
+
+        public async Task<IEnumerable<DebatePostDTO>> GetAllAsync(string? sort, int? filmId, int? seriesId, int? userId)
+        {
+            var posts = await _repo.GetRootPostsFilteredAsync(filmId, seriesId);
+
+            var sorted = sort switch
+            {
+                "mostliked" => posts.OrderByDescending(p => p.Likes.Count),
+                "mostcommented" => posts.OrderByDescending(p => p.Replies.Count),
+                "trending" => posts
+                    .Where(p => p.CreatedAt >= DateTime.UtcNow.AddDays(-7))
+                    .OrderByDescending(p => p.Likes.Count + p.Replies.Count)
+                    .AsEnumerable()
+                    .Concat(posts
+                        .Where(p => p.CreatedAt < DateTime.UtcNow.AddDays(-7))
+                        .OrderByDescending(p => p.CreatedAt)),
+                _ => posts.OrderByDescending(p => p.CreatedAt) // "newest" default
+            };
+
+            return sorted.Select(p => MapToDto(p, userId)).ToList();
+        }
+
+        public async Task<IEnumerable<DebatePostDTO>> GetAllRootPostsAsync()
+        {
+            return await GetAllAsync(null, null, null, null);
+        }
+
+        public async Task<DebatePostDTO?> GetDebateThreadAsync(int postId, int? userId)
+        {
+            var post = await _repo.GetByIdAsync(postId);
+            if (post == null) return null;
+            return MapToDto(post, userId);
         }
 
         private async Task DeleteRecursive(DebatePost post)
         {
             foreach (var reply in post.Replies.ToList())
                 await DeleteRecursive(reply);
-
             _repo.Delete(post);
         }
 
@@ -55,54 +93,21 @@ namespace movie_service_backend.Services
         {
             var post = await _repo.GetByIdAsync(postId);
             if (post == null) return false;
-
             await DeleteRecursive(post);
-
             return await _repo.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<DebatePostDTO>> GetAllRootPostsAsync()
-        {
-            var posts = await _repo.GetAllAsync();
-            var roots = posts.Where(p => p.ParentId == null);
-            return _mapper.Map<IEnumerable<DebatePostDTO>>(roots);
-        }
-
-        public async Task<DebatePostDTO?> GetDebateThreadAsync(int postId)
-        {
-            var post = await _repo.GetByIdAsync(postId);
-            if (post == null) return null;
-
-            var dto = _mapper.Map<DebatePostDTO>(post);
-
-            dto.LikesCount = await _likeRepo.CountByPostAsync(postId);
-
-            return dto;
         }
 
         public async Task ToggleLikeAsync(int userId, int postId)
         {
-            // 1. Proveri da li post postoji
             var post = await _repo.GetByIdAsync(postId);
             if (post == null)
                 throw new Exception("Debate post does not exist");
 
-            // 2. Proveri da li već postoji like
             var existing = await _likeRepo.GetByPostAndUserAsync(postId, userId);
-
             if (existing != null)
-            {
                 _likeRepo.Delete(existing);
-            }
             else
-            {
-                var like = new DebatePostLike
-                {
-                    DebatePostId = postId,
-                    UserId = userId
-                };
-                await _likeRepo.AddAsync(like);
-            }
+                await _likeRepo.AddAsync(new DebatePostLike { DebatePostId = postId, UserId = userId });
 
             await _likeRepo.SaveChangesAsync();
         }
@@ -111,6 +116,60 @@ namespace movie_service_backend.Services
         {
             return await _likeRepo.CountByPostAsync(postId);
         }
-        
+
+        public async Task IncrementViewAsync(int postId)
+        {
+            var post = await _repo.GetByIdAsync(postId);
+            if (post == null) return;
+            post.ViewCount++;
+            _repo.Update(post);
+            await _repo.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<DebatePostDTO>> GetByFilmAsync(int filmId, int? userId)
+        {
+            var posts = await _repo.GetByFilmIdAsync(filmId);
+            return posts.Select(p => MapToDto(p, userId)).ToList();
+        }
+
+        public async Task<IEnumerable<DebatePostDTO>> GetBySeriesAsync(int seriesId, int? userId)
+        {
+            var posts = await _repo.GetBySeriesIdAsync(seriesId);
+            return posts.Select(p => MapToDto(p, userId)).ToList();
+        }
+
+        private DebatePostDTO MapToDto(DebatePost post, int? userId)
+        {
+            var dto = new DebatePostDTO
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Content = post.Content,
+                CreatedAt = post.CreatedAt,
+                ParentId = post.ParentId,
+                UserId = post.UserId,
+                Username = post.User?.Username,
+                FilmId = post.FilmId,
+                FilmTitle = post.Film?.Title,
+                FilmPosterUrl = post.Film?.PosterUrl,
+                SeriesId = post.SeriesId,
+                SeriesTitle = post.Series?.Title,
+                SeriesPosterUrl = post.Series?.PosterUrl,
+                Tags = string.IsNullOrEmpty(post.Tags)
+                    ? new List<string>()
+                    : post.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList(),
+                IsSpoiler = post.IsSpoiler,
+                ViewCount = post.ViewCount,
+                LikesCount = post.Likes?.Count ?? 0,
+                ReplyCount = post.Replies?.Count ?? 0,
+                IsLikedByUser = userId.HasValue && (post.Likes?.Any(l => l.UserId == userId.Value) ?? false),
+                Replies = post.Replies?
+                    .OrderByDescending(r => r.Likes?.Count ?? 0)
+                    .ThenByDescending(r => r.CreatedAt)
+                    .Select(r => MapToDto(r, userId))
+                    .ToList() ?? new List<DebatePostDTO>()
+            };
+            return dto;
+        }
     }
 }

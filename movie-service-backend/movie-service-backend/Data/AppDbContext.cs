@@ -48,6 +48,19 @@ namespace movie_service_backend.Data
                 .HasForeignKey(p => p.ParentId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<DebatePost>()
+                .HasOne(p => p.Film)
+                .WithMany(f => f.DebatePosts)
+                .HasForeignKey(p => p.FilmId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired(false);
+
+            modelBuilder.Entity<DebatePost>()
+                .HasOne(p => p.Series)
+                .WithMany(s => s.DebatePosts)
+                .HasForeignKey(p => p.SeriesId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired(false);
 
             modelBuilder.Entity<Rating>()
                 .HasIndex(r => new { r.UserId, r.FilmId })

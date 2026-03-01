@@ -28,4 +28,5 @@ public class Film
     // Navigacione property
     public ICollection<Rating> Ratings { get; set; }
     public ICollection<Comment> Comments { get; set; }
+    public ICollection<DebatePost> DebatePosts { get; set; } = new List<DebatePost>();
 }
