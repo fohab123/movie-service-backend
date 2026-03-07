@@ -36,6 +36,19 @@ namespace movie_service_backend.Models
 
         [MaxLength(200)]
         public string? EmailVerificationToken { get; set; }
+
+        // Privacy settings
+        [MaxLength(20)]
+        public string CommentsVisibility { get; set; } = "everyone";
+
+        [MaxLength(20)]
+        public string WatchlistVisibility { get; set; } = "everyone";
+
+        [MaxLength(20)]
+        public string RatingsVisibility { get; set; } = "everyone";
+
+        public bool HideEmail { get; set; } = true;
+        public bool PersonalisedRecs { get; set; } = true;
     }
 }
  

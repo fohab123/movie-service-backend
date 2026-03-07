@@ -12,7 +12,7 @@ namespace movie_service_backend.Interfaces
         Task<string?> LoginAsync(LoginDTO dto);
         Task<bool> VerifyEmailAsync(string token);
         Task<UserStatsDTO> GetUserStatsAsync(int userId);
-
-
+        Task<UserPrivacyDTO?> GetPrivacySettingsAsync(int userId);
+        Task UpdatePrivacySettingsAsync(int userId, UserPrivacyDTO dto);
     }
 }

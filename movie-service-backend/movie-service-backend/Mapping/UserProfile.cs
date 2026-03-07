@@ -12,6 +12,7 @@ namespace movie_service_backend.Mapping
             CreateMap<User, UserAdminDTO>().ReverseMap();
             CreateMap<UserCreateDTO, User>()
             .ForMember(dest => dest.Password, opt => opt.Ignore());
+            CreateMap<User, UserPrivacyDTO>().ReverseMap();
         }
     }
 }

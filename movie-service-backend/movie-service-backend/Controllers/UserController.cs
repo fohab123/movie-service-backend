@@ -75,6 +75,21 @@ namespace movie_service_backend.Controllers
             var stats = await _userService.GetUserStatsAsync(userId);
             return Ok(stats);
         }
-    }   
+
+        [HttpGet("PrivacySettings/{userId}")]
+        public async Task<IActionResult> GetPrivacySettings(int userId)
+        {
+            var result = await _userService.GetPrivacySettingsAsync(userId);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        [HttpPut("PrivacySettings/{userId}")]
+        public async Task<IActionResult> UpdatePrivacySettings(int userId, [FromBody] UserPrivacyDTO dto)
+        {
+            await _userService.UpdatePrivacySettingsAsync(userId, dto);
+            return Ok("Privacy settings updated.");
+        }
+    }
 
 }

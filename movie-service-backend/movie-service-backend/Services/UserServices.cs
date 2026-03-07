@@ -113,6 +113,26 @@ namespace movie_service_backend.Services
 
             return _mapper.Map<UserAdminDTO>(user);
         }
+        public async Task<UserPrivacyDTO?> GetPrivacySettingsAsync(int userId)
+        {
+            var user = await _repo.GetByIdAsync(userId);
+            if (user == null) return null;
+            return _mapper.Map<UserPrivacyDTO>(user);
+        }
+
+        public async Task UpdatePrivacySettingsAsync(int userId, UserPrivacyDTO dto)
+        {
+            var user = await _repo.GetByIdAsync(userId);
+            if (user == null) return;
+            user.CommentsVisibility = dto.CommentsVisibility;
+            user.WatchlistVisibility = dto.WatchlistVisibility;
+            user.RatingsVisibility = dto.RatingsVisibility;
+            user.HideEmail = dto.HideEmail;
+            user.PersonalisedRecs = dto.PersonalisedRecs;
+            _repo.Update(user);
+            await _repo.SaveChangesAsync();
+        }
+
         public async Task<UserStatsDTO> GetUserStatsAsync(int userId)
         {
             var rated = await _repo.GetRatingsCountAsync(userId);
