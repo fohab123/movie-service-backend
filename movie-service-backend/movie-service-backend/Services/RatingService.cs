@@ -98,5 +98,11 @@ namespace movie_service_backend.Services
             var rating = await _repo.GetUserSeriesRatingAsync(userId, seriesId);
             return rating == null ? null : _mapper.Map<RatingDTO>(rating);
         }
+
+        public async Task<IEnumerable<RatingDTO>> GetByUserIdAsync(int userId)
+        {
+            var ratings = await _repo.GetByUserIdAsync(userId);
+            return _mapper.Map<IEnumerable<RatingDTO>>(ratings);
+        }
     }
 }

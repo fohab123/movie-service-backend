@@ -144,7 +144,7 @@ namespace movie_service_backend.Controllers
                         Duration = duration > 0 ? duration : 120,
                         Director = director.Length > 100 ? director[..100] : director,
                         PosterUrl = posterPath != null ? $"https://image.tmdb.org/t/p/w500{posterPath}" : "",
-                        LandscapeUrl = backdropPath != null ? $"https://image.tmdb.org/t/p/w1280{backdropPath}" : null,
+                        LandscapeUrl = backdropPath != null ? $"https://image.tmdb.org/t/p/w1280{backdropPath}" : "",
                         CreatedAt = DateTime.UtcNow,
                         Genre = new List<Genre> { genres[genreName] }
                     };
@@ -220,7 +220,7 @@ namespace movie_service_backend.Controllers
                         Seasons = seasons,
                         Director = creator.Length > 100 ? creator[..100] : creator,
                         PosterUrl = posterPath != null ? $"https://image.tmdb.org/t/p/w500{posterPath}" : "",
-                        LandscapeUrl = backdropPath != null ? $"https://image.tmdb.org/t/p/w1280{backdropPath}" : null,
+                        LandscapeUrl = backdropPath != null ? $"https://image.tmdb.org/t/p/w1280{backdropPath}" : "",
                         CreatedAt = DateTime.UtcNow,
                         Genre = new List<Genre> { genres[genreName] }
                     };

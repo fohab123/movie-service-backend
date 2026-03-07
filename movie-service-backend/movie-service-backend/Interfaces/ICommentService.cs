@@ -13,5 +13,6 @@ namespace movie_service_backend.Interfaces
         Task<bool> DeleteAsync(int id);
         Task<IEnumerable<CommentDTO>> GetByFilmIdAsync(int filmId);
         Task<IEnumerable<CommentDTO>> GetBySeriesIdAsync(int seriesId);
+        Task<IEnumerable<CommentDTO>> GetByUserIdAsync(int userId);
     }
 }

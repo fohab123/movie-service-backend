@@ -14,5 +14,6 @@ namespace movie_service_backend.Interfaces
         Task<IEnumerable<RatingDTO>> GetBySeriesIdAsync(int seriesId);
         Task<RatingDTO?> GetUserFilmRatingAsync(int userId, int filmId);
         Task<RatingDTO?> GetUserSeriesRatingAsync(int userId, int seriesId);
+        Task<IEnumerable<RatingDTO>> GetByUserIdAsync(int userId);
     }
 }

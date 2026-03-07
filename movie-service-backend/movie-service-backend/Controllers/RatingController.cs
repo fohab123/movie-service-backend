@@ -72,6 +72,12 @@ namespace movie_service_backend.Controllers
             return Ok(await _ratingService.GetBySeriesIdAsync(seriesId));
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUserId(int userId)
+        {
+            return Ok(await _ratingService.GetByUserIdAsync(userId));
+        }
+
         [HttpGet("user/{userId}/film/{filmId}")]
         public async Task<IActionResult> GetUserFilmRating(int userId, int filmId)
         {

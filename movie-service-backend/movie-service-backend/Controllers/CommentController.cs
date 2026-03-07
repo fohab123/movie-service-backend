@@ -73,5 +73,11 @@ namespace movie_service_backend.Controllers
         {
             return Ok(await _commentService.GetBySeriesIdAsync(seriesId));
         }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUserId(int userId)
+        {
+            return Ok(await _commentService.GetByUserIdAsync(userId));
+        }
     }
 }

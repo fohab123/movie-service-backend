@@ -70,5 +70,14 @@ namespace movie_service_backend.Repo
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Comment>> GetByUserIdAsync(int userId)
+        {
+            return await _context.Comments
+                .Include(c => c.User)
+                .Where(c => c.UserId == userId)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
     }
 }
