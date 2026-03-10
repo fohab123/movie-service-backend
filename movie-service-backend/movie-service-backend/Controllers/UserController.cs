@@ -76,6 +76,22 @@ namespace movie_service_backend.Controllers
             return Ok(stats);
         }
 
+        [HttpPut("UpdateEmail/{id}")]
+        public async Task<IActionResult> UpdateEmail(int id, [FromBody] UpdateEmailDTO dto)
+        {
+            var result = await _userService.UpdateEmailAsync(id, dto.Email);
+            if (!result) return NotFound();
+            return Ok("Email updated.");
+        }
+
+        [HttpPut("ChangePassword/{id}")]
+        public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordDTO dto)
+        {
+            var result = await _userService.ChangePasswordAsync(id, dto.CurrentPassword, dto.NewPassword);
+            if (!result) return BadRequest("Current password is incorrect.");
+            return Ok("Password changed.");
+        }
+
         [HttpGet("PrivacySettings/{userId}")]
         public async Task<IActionResult> GetPrivacySettings(int userId)
         {
@@ -89,6 +105,14 @@ namespace movie_service_backend.Controllers
         {
             await _userService.UpdatePrivacySettingsAsync(userId, dto);
             return Ok("Privacy settings updated.");
+        }
+
+        [HttpPut("SoftDelete/{id}")]
+        public async Task<IActionResult> SoftDelete(int id)
+        {
+            var result = await _userService.SoftDeleteUserAsync(id);
+            if (!result) return NotFound();
+            return Ok("Account deactivated.");
         }
     }
 

@@ -14,5 +14,8 @@ namespace movie_service_backend.Interfaces
         Task<UserStatsDTO> GetUserStatsAsync(int userId);
         Task<UserPrivacyDTO?> GetPrivacySettingsAsync(int userId);
         Task UpdatePrivacySettingsAsync(int userId, UserPrivacyDTO dto);
+        Task<bool> UpdateEmailAsync(int userId, string email);
+        Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
+        Task<bool> SoftDeleteUserAsync(int userId);
     }
 }

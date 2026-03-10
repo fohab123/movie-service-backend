@@ -49,6 +49,8 @@ namespace movie_service_backend.Models
 
         public bool HideEmail { get; set; } = true;
         public bool PersonalisedRecs { get; set; } = true;
+
+        public bool IsDeleted { get; set; } = false;
     }
 }
  

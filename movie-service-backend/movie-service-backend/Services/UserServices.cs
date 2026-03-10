@@ -89,6 +89,9 @@ namespace movie_service_backend.Services
             if (user == null)
                 return null;
 
+            if (user.IsDeleted)
+                throw new UnauthorizedAccessException("This account has been deactivated.");
+
             if (!user.IsEmailVerified)
                 throw new UnauthorizedAccessException("Email not verified. Please verify your email before logging in.");
 
@@ -131,6 +134,37 @@ namespace movie_service_backend.Services
             user.PersonalisedRecs = dto.PersonalisedRecs;
             _repo.Update(user);
             await _repo.SaveChangesAsync();
+        }
+
+        public async Task<bool> UpdateEmailAsync(int userId, string email)
+        {
+            var user = await _repo.GetByIdAsync(userId);
+            if (user == null) return false;
+            user.Email = email;
+            _repo.Update(user);
+            await _repo.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            var user = await _repo.GetByIdAsync(userId);
+            if (user == null) return false;
+            if (!_passwordService.VerifyPassword(user.Password, currentPassword)) return false;
+            user.Password = _passwordService.HashPassword(newPassword);
+            _repo.Update(user);
+            await _repo.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> SoftDeleteUserAsync(int userId)
+        {
+            var user = await _repo.GetByIdAsync(userId);
+            if (user == null) return false;
+            user.IsDeleted = true;
+            _repo.Update(user);
+            await _repo.SaveChangesAsync();
+            return true;
         }
 
         public async Task<UserStatsDTO> GetUserStatsAsync(int userId)
